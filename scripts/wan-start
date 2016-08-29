@@ -26,8 +26,9 @@ start_igmp_proxy () {
     local_command 'killall' "killall -9 igmpproxy"
     local_command 'killall' "killall -9 snooper"
   logger "$0: starting igmp proxy"
+  local_command 'emf' "emf add iface br0 $VLAN_IFACE"
   local_command 'igmpproxy' "igmpproxy -v $CUSTOM_CONFIG_DIR/igmpproxy.conf"
-  local_command 'snooper' "snooper -b br0 -s vlan3964"
+  local_command 'snooper' "snooper -b br0 -s VLAN_IFACE"
 }
 
 #---------------------------------------------------------------------------
