@@ -3,3 +3,6 @@
 # Used by nat-start
 logger "$0: modprobing ebtables"
 modprobe ebtables
+
+mkdir /jffs/opt
+ln -nsf /jffs/opt /tmp/opt

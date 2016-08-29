@@ -1,19 +1,13 @@
 #!/bin/sh
 
+sleep 10
+sh /koolshare/ss/game/nat-start
 #-----------------------------------------------------------------------------
 configure_meo_rules () {
 
-  # Sometimes nat-start is called before the VLAN dhcp server script.  In
-  # these cases, just bail.
   [ -n "$VLAN_IP" ] || return 1
-
-  # These are the networks whose packets we want to ROUTE OUT of our LOCAL network to the VLAN
-  # The original router doesn't seem to give access to 10.x networks in its config, so they
-  # are being excluded here.
-  local forward_vlan_networks_out="213.13.16.0/20 194.65.46.0/23"
   local mcast_net="239.255.255.250/32"
-
-  for vlan_net in $forward_vlan_networks_out; do
+  for vlan_net in $IPTV_NETS; do
     if has_rule $vlan_net 'nat'; then
       logger "$0: NOT adding $LAN_NET -> $VLAN_IFACE:$vlan_net:$VLAN_IP POSTROUTING rule"
     else
@@ -21,18 +15,18 @@ configure_meo_rules () {
       iptables --table nat -I POSTROUTING 1 --source $LAN_NET --destination $vlan_net --out-interface $VLAN_IFACE --jump SNAT --to-source $VLAN_IP
     fi
   done
-
-  # Prevent multicast packets from flooding the Wireless network.  ebtables requires build > 52!
+      
+# Prevent multicast packets from flooding the Wireless network.  ebtables requires build > 52!
   ebtables -t nat -F  
   ebtables --table nat -A OUTPUT -o $LAN_IFACE-d Multicast -p 0x800 --ip-proto udp --ip-dst $mcast_net -j ACCEPT 
   ebtables --table nat -A OUTPUT -o $WLAN_IFACE -d Multicast -j DROP 
 }
-
+              
 #=============================================================================
-
+             
 logger "$0 event called with args: $@"
-
+             
 source /jffs/scripts/custom/_net_functions
 init_config
-
+       
 configure_meo_rules

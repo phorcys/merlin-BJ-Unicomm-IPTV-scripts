@@ -22,12 +22,13 @@ LAN_BR=$(nvram get lan_ifname) # default=br0
 #-----------------------------------------------------------------------------
 # MEO ISP Configuration 
 #-----------------------------------------------------------------------------
-VLAN_IFACE="vlan12" # vlan for the MEO IPTV and VoIP
-VLAN_VENDOR_CLASS="2WHPL" # required for the MEO vlan DHCP server
+VLAN_IFACE="vlan3964" # vlan for the MEO IPTV and VoIP
+VLAN_VENDOR_CLASS="dslforum.org:HUAWEI:STB:EC6108V9U_pub_bjjlt" # required for the MEO vlan DHCP server
 
 # This file is written by the meo_post-dhcp-vlan-config script when the udhcp 
 # client has gottan an IP address from the MEO vlan DHCP server.
 # It is needed at least by the nat-start script.
 VLAN_IP_FILE="/tmp/vlan_ip"
 
-
+IPTV_NETS="61.135.110.0/24 210.13.0.0/23 61.135.107.0/24 61.135.88.0/23 210.13.31.0/24"
+IPTV_BOX_MACS="54:93:59:81:46:7c 54:93:59:cd:a2:99"

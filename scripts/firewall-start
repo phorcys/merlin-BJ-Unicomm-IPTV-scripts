@@ -4,8 +4,6 @@
 configure_meo_rules () {
 
   # These are the networks whose packets we want to FORWARD INto our LOCAL network
-  local forward_vlan_networks_in="10.173.0.0/16 213.13.16.0/20 194.65.46.0/23"
-
   local mcast_ip="224.0.0.0/4"
   local mcast_port="1025"
   local proto=udp
@@ -19,7 +17,7 @@ configure_meo_rules () {
     iptables -I INPUT 1 -i $VLAN_IFACE -p $proto --dst $mcast_ip --dport $mcast_port: -j ACCEPT
   fi
 
-  for vlan_net in $forward_vlan_networks_in; do
+  for vlan_net in $IPTV_NETS; do
     if has_rule $vlan_net; then
       logger "$0: NOT adding $VLAN_IFACE:$vlan_net -> $LAN_BR FORWARD rule"
     else

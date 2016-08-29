@@ -1,18 +1,35 @@
 #!/bin/sh
 
+sleep 10
+sh /koolshare/scripts/ss_config.sh
+
+init_bj_unicomm_iptv_config(){
+
+logger "$0: restore iptv ipset from /jffs/configs/custom/iptv.set "
+ipset -F iptv
+cat /jffs/configs/custom/iptv.set | ipset -R
+
+for onemac in $IPTV_BOX_MACS;do
+  #由于机顶盒虽然可以从路由器获取IP，网关，但它的dns
+  #总是固定在2个联通的预设值，所以需要劫持机顶盒的dns请求到路由器的dns。
+  iptables -t nat -A PREROUTING -m mac --mac-source $onemac -p udp --dport 53 -j REDIRECT --to-ports  53
+done
+# set iptable forward rules
+iptables -t nat -I POSTROUTING 3  -o vlan3964 -j MASQUERADE
+iptables -I FORWARD 5 ! -i br0 -o vlan3964 -j DROP
+
+}
 #---------------------------------------------------------------------------
 # Based on: 
 # https://github.com/zipleen/tomato-ddwrt-meo-iptv-scripts/blob/master/startiptv.sh
 #---------------------------------------------------------------------------
 start_igmp_proxy () {
-  if [ `ps | grep 'igmpproxy' | grep $config_file | wc -l` -eq 0 ]; then
-    logger "$0: starting igmp proxy"
-    local_command 'igmpproxy' "igmpproxy -d -v $CUSTOM_CONFIG_DIR/meo-config-igmp"
-    return $?
-  else
-    logger "$0: igmpproxy already running"
-    return 0
-  fi
+    logger "$0: kill started igmp proxy and snooper"
+    local_command 'killall' "killall -9 igmpproxy"
+    local_command 'killall' "killall -9 snooper"
+  logger "$0: starting igmp proxy"
+  local_command 'igmpproxy' "igmpproxy -v $CUSTOM_CONFIG_DIR/igmpproxy.conf"
+  local_command 'snooper' "snooper -b br0 -s vlan3964"
 }
 
 #---------------------------------------------------------------------------
@@ -20,9 +37,10 @@ start_igmp_proxy () {
 # https://github.com/zipleen/tomato-ddwrt-meo-iptv-scripts/blob/master/startiptv.sh
 #---------------------------------------------------------------------------
 configure_vlan () {
-  local script=$CUSTOM_SCRIPT_DIR/meo-post-dhcp-vlan-config 
+  local script=$CUSTOM_SCRIPT_DIR/post-dhcp-vlan-config 
   if [ -f "$script" ]; then
     logger "$0: kicking off vlan config"
+    logger "$0: udhcpc -i $VLAN_IFACE -p /var/run/udhcpc0.pid -V $VLAN_VENDOR_CLASS -s $script "
     local_command 'udhcpc' "udhcpc -i $VLAN_IFACE -p /var/run/udhcpc0.pid -V $VLAN_VENDOR_CLASS -s $script"
     return $?
   else
@@ -38,9 +56,16 @@ logger "$0 event called with args: $@"
 source /jffs/scripts/custom/_net_functions
 init_config
 
-update_dynamic_dns && update_tunlr_client
 
 # This technically doesn't depend on the WAN interface, but I'm not sure 
 # there is a better hook for it than wan-start.
 configure_vlan && start_igmp_proxy
+init_bj_unicomm_iptv_config
+
+
+#init ss
+
+
+dbus fire onwanstart
+/usr/bin/plugin.sh start
 

@@ -23,38 +23,35 @@ vlan_iface=$interface
 vlan_ip=$ip
 vlan_subnet=$subnet
 vlan_gateway=$router
+vlan_ssn=`echo "$vlan_gateway"| sed -e "s/.1$/.0/g"| awk '{print $0"/20"}'`
+
 
 # duped from _net_config
 vlan_ip_file="/tmp/vlan_ip"
+
+source /jffs/scripts/custom/_net_functions
+init_config
 
 #-----------------------------------------------------------------------------
 # These routes are set up on the original hardware, as observed in a backup 
 # file (user.ini).
 #-----------------------------------------------------------------------------
 configure_meo_routes () {
-  logger "$0: setting up VLAN routes"
+  logger "$0: setting up IPTV VLAN routes"
   
-  # rule add chain=rt_user_labels index=1 dstip=10.173.[192-255].* log=disabled state=enabled label=toVideoNet
-  ## 10.173.0.1 -> 10.173.255.254
-  ## 10.173.0.0 / 255.255.255.0 / 16
-  ## http://www.aboutmyip.com/AboutMyXApp/SubnetCalculator.jsp?ipAddress=10.173.0.0&cidr=16
-  route add -net 10.173.0.0 netmask 255.255.0.0 gw $vlan_gateway dev $vlan_iface
+  #route add -net 10.173.0.0 netmask 255.255.0.0 gw $vlan_gateway dev $vlan_iface
   
-  # rule add chain=rt_user_labels index=2 dstip=213.13.[16-24].* log=disabled state=enabled label=toVideoNet
-  # 213.13.[16-24]
-  ## 213.13.16.1 -> 213.13.31.254
-  ## 213.13.16.0 / 255.255.240.0 / 20
-  ## http://www.aboutmyip.com/AboutMyXApp/SubnetCalculator.jsp?ipAddress=213.13.16.0&cidr=20
-  # Covers VoIP Proxy: proxy.ims.iptv.telecom.pt (213.13.24.225)
-  route add -net 213.13.16.0 netmask 255.255.240.0 gw $vlan_gateway dev $vlan_iface 
+  #default subnet route
+  ip route add $vlan_ssn  via $vlan_gateway dev $vlan_iface     
+  for tgts in $IPTV_NETS;do
+  	logger "$0:        ip route add $tgts via $vlan_gateway dev $vlan_iface "
+  	ip route add $tgts via $vlan_gateway dev $vlan_iface
+  done
   
-  # rule add chain=rt_user_labels index=3 dstip=194.65.[46-47].* log=disabled state=enabled label=toVideoNet
-  # 194.65.46.0 -> 194.65.47.254
-  ## 194.65.46.0 / 255.255.254.0 / 23 
-  ## http://www.aboutmyip.com/AboutMyXApp/SubnetCalculator.jsp?ipAddress=194.65.46.0&cidr=23 
-  # Covers VLAN DNS servers: 194.65.47.44 and 194.65.47.43
-  route add -net 194.65.46.0 netmask 255.255.254.0 gw $vlan_gateway dev $vlan_iface
-                     
+  iptables -I INPUT 1 -i $vlan_iface -p udp --dst 224.0.0.0/4 -j ACCEPT
+  iptables -I FORWARD -i $vlan_iface -o br0 -s $vlan_ssn -j ACCEPT
+                           
+  iptables --table nat -I POSTROUTING 1 --source $LAN_NET --destination $vlan_ssn --out-interface $vlan_iface --jump SNAT --to-source $vlan_ip
   logger "$0: saving vlan ip $vlan_ip to $vlan_ip_file"
   
   # Now that we have the routes set up, we need to set up some firweall rules:

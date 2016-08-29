@@ -1,0 +1,8 @@
+#!/bin/sh 
+
+
+logger "$0:  init vlan configs "
+robocfg vlans reset vlan 1 ports "0 1 2 3 5" vlan 2 port "4 5" vlan 3961 ports "4t 5t" vlan 3964 ports "4t 5t"
+vconfig add eth0 3964
+ifconfig vlan3964 up
+
