@@ -1,7 +1,5 @@
 #!/bin/sh
 
-sleep 10
-sh /koolshare/ss/game/nat-start
 #-----------------------------------------------------------------------------
 configure_meo_rules () {
 
@@ -30,3 +28,7 @@ source /jffs/scripts/custom/_net_functions
 init_config
        
 configure_meo_rules
+
+#init ss
+sleep 10
+sh /koolshare/ss/game/nat-start

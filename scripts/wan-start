@@ -1,7 +1,5 @@
 #!/bin/sh
 
-sleep 10
-sh /koolshare/scripts/ss_config.sh
 
 init_bj_unicomm_iptv_config(){
 
@@ -64,7 +62,8 @@ init_bj_unicomm_iptv_config
 
 
 #init ss
-
+sleep 10
+sh /koolshare/scripts/ss_config.sh
 
 dbus fire onwanstart
 /usr/bin/plugin.sh start
