@@ -1,12 +1,12 @@
 merlin-BJ-Unicomm-IPTV-scripts
 ==================
 
-北京联通单网线IPTV+桥接+第三方APP 梅林固件脚本
-
-用于实现单网线连接桥接光猫，并实现IPTV和IPTV第三方app上网共存
 修改自  [twelve17/merlin-meo-scripts](https://github.com/twelve17/merlin-meo-scripts)
 
 
+北京联通单网线IPTV+桥接+第三方APP 梅林固件脚本
+
+用于实现单网线连接桥接光猫，并实现IPTV和IPTV第三方app上网共存
 
 本脚本在  R6300V2 固件版本`380.59_X6.6.1`测试通过.
 
@@ -37,7 +37,7 @@ merlin-BJ-Unicomm-IPTV-scripts
 ## 安装
 
 * 将configs scripts两个目录放入路由器 /jffs 目录下
-* 更改scripts和 configs的权限为755   chmod -R 755 /jffs/configs /jffs/scripts
+* 更改scripts和 configs的权限为755   chmod -r 755 /jffs/configs /jffs/scripts
 
 ## 配置  configs/custom/_net_config
 * LAN_NET 本地局域网网段 默认  192.168.1.0/24
@@ -67,6 +67,6 @@ merlin-BJ-Unicomm-IPTV-scripts
 ## 其他
 
 * 如果需要无线网络支持 IPTV，配置 configs/custom/igmpproxy.conf, 打开无线网络的支持， 2.4g无线为 eth1，5g为eth2
-* 无线IPTV严重影响普通无线使用，建议用一个旧的11n路由器，当作AP接到路由器lan口，专门供IPTV机顶盒访问
+* 无线IPTV严重影响普通无线使用，建议用一个旧的11n路由器，使用和主路由器不同频道，当作AP接到路由器lan口，专门供IPTV机顶盒访问
 * IPTV网段的10.208.x.1网关经常ping不通，可以用 210.13.0.146/177 作为测试目标，或者 用IPTV机顶盒的网络测试功能
 * 如需诊断，建议安装bootstrap，opkg安装 tcpdump以便分析
