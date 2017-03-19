@@ -30,5 +30,5 @@ VLAN_VENDOR_CLASS="dslforum.org:HUAWEI:STB:EC6108V9U_pub_bjjlt" # required for t
 # It is needed at least by the nat-start script.
 VLAN_IP_FILE="/tmp/vlan_ip"
 
-IPTV_NETS="61.135.110.0/24 210.13.0.0/23 61.135.107.0/24 61.135.88.0/23 210.13.31.0/24"
+IPTV_NETS="61.135.110.0/24 210.13.0.0/23 61.135.107.0/24 61.135.88.0/23 61.135.95.0/24 210.13.31.0/24"
 IPTV_BOX_MACS="54:93:59:81:46:7c 54:93:59:cd:a2:99"
