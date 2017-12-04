@@ -28,7 +28,7 @@ start_igmp_proxy () {
   logger "$0: starting igmp proxy"
   local_command 'emf' "emf add iface br0 $VLAN_IFACE"
   local_command 'igmpproxy' "igmpproxy -v $CUSTOM_CONFIG_DIR/igmpproxy.conf"
-  local_command 'snooper' "snooper -b br0 -s VLAN_IFACE"
+  local_command 'snooper' "snooper -b br0 -s $VLAN_IFACE"
 }
 
 #---------------------------------------------------------------------------
