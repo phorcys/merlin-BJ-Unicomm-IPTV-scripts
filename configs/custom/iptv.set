@@ -1,5 +1,3 @@
 create iptv nethash
-add iptv 61.135.110.0/24
-add iptv 210.13.0.0/23
-add iptv 61.135.107.0/24
-add iptv 61.135.88.0/23
+add iptv 61.135.0.0/16 
+add iptv 210.13.0.0/16
