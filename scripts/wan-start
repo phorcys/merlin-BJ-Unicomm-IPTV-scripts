@@ -4,8 +4,8 @@
 init_bj_unicomm_iptv_config(){
 
 logger "$0: restore iptv ipset from /jffs/configs/custom/iptv.set "
-ipset -F iptv
-cat /jffs/configs/custom/iptv.set | ipset -R
+ipset destroy iptv
+ipset restore -file /jffs/configs/custom/iptv.set
 
 for onemac in $IPTV_BOX_MACS;do
   #由于机顶盒虽然可以从路由器获取IP，网关，但它的dns
